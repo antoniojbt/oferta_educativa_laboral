@@ -44,6 +44,11 @@ library(skimr)
 library(knitr)
 library(htmltools)
 library(log4r)
+
+# command line arguments: infile path and output directory
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) >= 1) infile_path <- args[1]
+if (length(args) >= 2) results_subdir <- args[2]
 # ////////////
 
 

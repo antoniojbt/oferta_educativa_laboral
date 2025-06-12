@@ -32,6 +32,10 @@ library(log4r)
 library(dplyr)
 library(tidyr)
 # library(skimr)
+# command line arguments: input RData and output directory
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) >= 1) infile_path <- args[1]
+if (length(args) >= 2) results_subdir <- args[2]
 # ////////////
 
 

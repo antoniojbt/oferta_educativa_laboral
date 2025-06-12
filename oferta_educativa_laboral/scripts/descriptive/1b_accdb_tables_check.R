@@ -20,6 +20,11 @@
 library(data.table)
 library(episcout)
 library(tidyverse)
+
+# command line arguments: infile and results directory
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) >= 1) infile <- args[1]
+if (length(args) >= 2) results_outdir <- args[2]
 ############
 
 

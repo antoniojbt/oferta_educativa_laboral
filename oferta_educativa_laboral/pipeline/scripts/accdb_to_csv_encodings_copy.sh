@@ -1,30 +1,55 @@
 #!/usr/bin/env bash
 
-# Export each table from an Access .accdb file to a UTF-8 encoded CSV
-# Run as:
-#./accdb_to_csv.sh your_file.accdb
-
-# Output:
-# For each table t, e.g.:
-# Qna 07 Bienestar 2025 will be Qna_07_Bienestar_2025.csv
-
-# Try exporting each table assuming cp1252
-# If cp1252 decoding fails, retry assuming UTF-8
-# Log which tables failed cp1252
-# Output clean UTF-8 CSVs for all successfully processed tables
+# Export tables from an Access .accdb file as UTF-8 CSVs.
+#
+# Usage:
+#   accdb_to_csv_encodings_copy.sh -i DB.accdb [-o outdir]
+#
+# Each table "Foo Bar" becomes "Foo_Bar.csv" in the output directory. The script
+# first attempts to decode using Windows-1252. If that fails it falls back to
+# UTF-8. Names of tables requiring the fallback are logged.
 
 
+# Bash safety
 set -euo pipefail
 
-# Encoding:
-MDB_JET3_CHARSET="utf-8"    # Primary guess (Western European Windows)
-FALLBACK_CHARSET="cp1252"     # Fallback if cp1252 fails
+# Defaults
+PRIMARY_CHARSET="cp1252"
+FALLBACK_CHARSET="utf-8"
+DB_FILE=""
+OUTDIR="."
 
-# DB and tables:
-DB_FILE="$1"
-OUTDIR="${2:-.}"
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") -i input.accdb [-o outdir]
 
-# Output dir, but not using:
+Export each table in the Access database as a UTF-8 CSV. Requires mdb-tools.
+
+Options:
+  -i FILE   Input .accdb database
+  -o DIR    Output directory (default: current directory)
+  -h        Show this help
+EOF
+}
+
+while getopts "i:o:h" opt; do
+    case "$opt" in
+        i) DB_FILE="$OPTARG";;
+        o) OUTDIR="$OPTARG";;
+        h) usage; exit 0;;
+        *) usage; exit 1;;
+    esac
+done
+
+if [[ -z "$DB_FILE" ]]; then
+    echo "Error: -i input.accdb is required" >&2
+    usage
+    exit 1
+fi
+
+command -v mdb-tables >/dev/null || { echo "mdb-tables not found" >&2; exit 1; }
+command -v mdb-export >/dev/null || { echo "mdb-export not found" >&2; exit 1; }
+
 mkdir -p "$OUTDIR"
 
 # Log if encodings fail:
@@ -39,12 +64,12 @@ for t in "${TABLES[@]}"; do
     SAFE_NAME=$(echo "$t" | tr ' /' '_')
     TMPFILE="$(mktemp)"
 
-    # Try cp1252, best for Spanish, but will use the var set for encoding:
+    # Attempt export using the primary charset first
     if mdb-export -D '%Y-%m-%d %H:%M:%S' -d ',' -q '"' "$DB_FILE" "$t" \
-        | iconv -f "$MDB_JET3_CHARSET" -t utf-8//IGNORE > "$TMPFILE"; then
-        echo "OK with $MDB_JET3_CHARSET" >&2
+        | iconv -f "$PRIMARY_CHARSET" -t utf-8//IGNORE > "$TMPFILE"; then
+        echo "OK with $PRIMARY_CHARSET" >&2
     else
-        echo "cp1252 failed, trying $FALLBACK_CHARSET..." >&2
+        echo "$PRIMARY_CHARSET failed, trying $FALLBACK_CHARSET..." >&2
         echo "$t" >> "$LOGFILE"
 
         # Retry with fallback encoding:
@@ -64,4 +89,3 @@ done
 
 echo "Done." >&2
 echo "Tables needing $FALLBACK_CHARSET decoding are in: $LOGFILE" >&2
-
