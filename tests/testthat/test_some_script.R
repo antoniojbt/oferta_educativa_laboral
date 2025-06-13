@@ -25,11 +25,16 @@ test_that("output has expected columns", {
   expect_type(out$new_var, "double")
 })
 
+#test_that("missing input triggers error", {
+#  missing <- tempfile(fileext = ".csv")
+#  out_csv <- tempfile(fileext = ".csv")
+#  expect_error(
+#    system2("Rscript", c(script_loc, missing, out_csv), stderr = TRUE, stdout = TRUE),
+#    "Input file does not exist"
+#  )
+#})
+
 test_that("missing input triggers error", {
-  missing <- tempfile(fileext = ".csv")
-  out_csv <- tempfile(fileext = ".csv")
-  expect_error(
-    system2("Rscript", c(script_loc, missing, out_csv), stderr = TRUE, stdout = TRUE),
-    "Input file does not exist"
-  )
+  expect_error(system2("Rscript", c(script_loc, "nonexistent.csv", "output.csv")), 
+               "Input file does not exist")
 })
