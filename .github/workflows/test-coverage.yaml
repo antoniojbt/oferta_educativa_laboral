@@ -18,7 +18,7 @@ jobs:
       - name: Install R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         
-        - name: Install R dependencies from list (CRAN + GitHub)
+      - name: Install R dependencies from list (CRAN + GitHub)
         run: |
          Rscript -e '
          repos <- "https://packagemanager.rstudio.com/all/latest"
