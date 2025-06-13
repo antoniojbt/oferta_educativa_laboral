@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 
-
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) < 2) {
@@ -14,8 +13,8 @@ if (!file.exists(input_csv)) {
   stop(paste("Error: Input file does not exist:", input_csv))
 }
 
-df <- read.csv(infile)
+df <- read.csv(input_csv)
 
 df$new_var <- df[[1]] / df[[2]]
 
-write.csv(df, outfile, row.names = FALSE)
+write.csv(df, output_csv, row.names = FALSE)
