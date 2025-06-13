@@ -21,23 +21,26 @@ jobs:
 
       - name: Install R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
-        
-      - name: Install R dependencies from list (CRAN + GitHub)
-        run: |
-         Rscript -e '
-         repos <- "https://packagemanager.rstudio.com/all/latest"
-         reqs  <- scan("r-requirements.txt", what = "character", comment.char = "#")
-         # split CRAN vs GitHub
-         cran  <- reqs[!grepl("^github::", reqs)]
-         gh    <- sub("^github::", "", reqs[ grepl("^github::", reqs) ])
-         if (length(cran) > 0)
-         install.packages(cran, repos = repos, dependencies = TRUE)
-         if (length(gh) > 0) {
-         if (!requireNamespace("remotes", quietly = TRUE))
-           install.packages("remotes", repos = repos)
-         remotes::install_github(gh)
-         }
-         '
+        with:
+          extra-packages: |
+            github::AntonioJBT/episcout
+            
+      #- name: Install R dependencies from list (CRAN + GitHub)
+      #  run: |
+      #   Rscript -e '
+      #   repos <- "https://packagemanager.rstudio.com/all/latest"
+      #   reqs  <- scan("r-requirements.txt", what = "character", comment.char = "#")
+      #   # split CRAN vs GitHub
+      #   cran  <- reqs[!grepl("^github::", reqs)]
+      #   gh    <- sub("^github::", "", reqs[ grepl("^github::", reqs) ])
+      #   if (length(cran) > 0)
+      #   install.packages(cran, repos = repos, dependencies = TRUE)
+      #   if (length(gh) > 0) {
+      #   if (!requireNamespace("remotes", quietly = TRUE))
+      #     install.packages("remotes", repos = repos)
+      #   remotes::install_github(gh)
+      #   }
+      #   '
 
       - name: Test coverage
         run: |
