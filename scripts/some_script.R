@@ -1,15 +1,17 @@
 #!/usr/bin/env Rscript
 
+
 args <- commandArgs(trailingOnly = TRUE)
+
 if (length(args) < 2) {
-  stop("Usage: some_script.R <input_csv> <output_csv>")
+  stop("Error: Not enough arguments. Usage: Rscript some_script.R <input_csv> <output_csv>")
 }
 
-infile <- args[1]
-outfile <- args[2]
+input_csv <- args[1]
+output_csv <- args[2]
 
-if (!file.exists(infile)) {
-  stop(paste("cannot open", infile))
+if (!file.exists(input_csv)) {
+  stop(paste("Error: Input file does not exist:", input_csv))
 }
 
 df <- read.csv(infile)
