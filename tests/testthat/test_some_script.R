@@ -1,4 +1,5 @@
 library(testthat)
+library(withr)
 
 # Basic smoke test for scripts/some_script.R
 
@@ -6,8 +7,8 @@ library(testthat)
 script_loc <- here::here("scripts", "some_script.R")
 
 test_that("some_script.R executes and creates output", {
-  in_csv <- local_tempfile(fileext = ".csv")
-  out_csv <- local_tempfile(fileext = ".csv")
+  in_csv <- withr::local_tempfile(fileext = ".csv")
+  out_csv <- withr::local_tempfile(fileext = ".csv")
   write.csv(data.frame(a = 1:2, b = 2:3), in_csv, row.names = FALSE)
   exit_code <- system2("Rscript", c(script_loc, in_csv, out_csv))
   expect_equal(exit_code, 0)
@@ -15,8 +16,8 @@ test_that("some_script.R executes and creates output", {
 })
 
 test_that("output has expected columns", {
-  in_csv <- local_tempfile(fileext = ".csv")
-  out_csv <- local_tempfile(fileext = ".csv")
+  in_csv <- withr::local_tempfile(fileext = ".csv")
+  out_csv <- withr::local_tempfile(fileext = ".csv")
   write.csv(data.frame(a = 1:2, b = 2:3), in_csv, row.names = FALSE)
   system2("Rscript", c(script_loc, in_csv, out_csv))
   out <- read.csv(out_csv)
