@@ -42,15 +42,21 @@ jobs:
       #   }
       #   '
 
-      - name: Test coverage
+      - name: Run R coverage (non-package)
         run: |
-          cov <- covr::package_coverage(
-            quiet = FALSE,
-            clean = FALSE,
-            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
-          )
-          covr::to_cobertura(cov)
-        shell: Rscript {0}
+         Rscript -e '
+         library(covr)
+
+         # 1) find source scripts and test files:
+         srcs  <- list.files("scripts", pattern = "\\.R$", full.names = TRUE)
+         tests <- list.files("tests/testthat", pattern = "^test.*\\.R$", full.names = TRUE)
+
+         # 2) run file-level coverage:
+         cov <- file_coverage(source_files = srcs, test_files = tests)
+
+         # 3) write out Cobertura XML for Codecov:
+         report(cov, type = "cobertura", file = "cobertura.xml")
+         '
 
       - uses: codecov/codecov-action@v4
         with:
