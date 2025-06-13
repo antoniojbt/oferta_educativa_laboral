@@ -30,6 +30,6 @@ test_that("missing input triggers error", {
   out_csv <- tempfile(fileext = ".csv")
   expect_error(
     system2("Rscript", c(script_loc, missing, out_csv), stderr = TRUE, stdout = TRUE),
-    "cannot open"
+    "Input file does not exist"
   )
 })
