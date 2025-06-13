@@ -28,9 +28,10 @@ jobs:
       - name: Install packages
         run: |
           install.packages(c(
-            'testthat', 'magrittr', 'knitr',
             'kableExtra', 'dplyr', 'data.table', 'episcout',
-            'covr', 'lintr', 'styler', 'here', 'ggplot2', 'ggthemes'
+            'testthat', 'magrittr', 'knitr',
+            'ggplot2', 'ggthemes',
+            'covr', 'lintr', 'styler', 'here', 'withr'
           ))
         shell: Rscript {0}
       - name: Run tests
