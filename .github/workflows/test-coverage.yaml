@@ -25,12 +25,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr, any::xml2
+          extra-packages: |
+            any::covr
+            any::xml2
+            antoniojbt/episcout
           needs: coverage
-          options: --no-cache --no-lock --verbose
-          
-      - name: Install episcout from GitHub
-        run: Rscript -e "pak::pkg_install('antoniojbt/episcout')"
 
       - name: Test coverage
         run: |
