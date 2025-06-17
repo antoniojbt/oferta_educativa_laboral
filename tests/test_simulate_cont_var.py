@@ -1,10 +1,9 @@
 from pathlib import Path
 import sys
-import pandas as pd
 
 base = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(base))
-from oferta_educativa_laboral.pipeline.scripts import simulate_cont_var
+sys.path.insert(0, str(base))  # noqa: E402
+from oferta_educativa_laboral.pipeline.scripts import simulate_cont_var  # noqa: E402
 
 
 def test_create_df_from_config(tmp_path):

@@ -3,3 +3,7 @@ ruffus
 pytest
 coverage
 flake8
+docopt
+pandas
+numpy
+scipy

@@ -54,3 +54,7 @@ dependencies:
     - ruffus
     - cgatcore
     - coverage
+    - docopt
+    - pandas
+    - numpy
+    - scipy
