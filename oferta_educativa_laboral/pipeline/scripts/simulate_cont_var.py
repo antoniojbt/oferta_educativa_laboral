@@ -90,7 +90,10 @@ import random
 
 
 def id_generator(
-    text="ID_", size=6, chars=string.ascii_uppercase + string.digits, sample_size=1000
+    text="ID_",
+    size=6,
+    chars=string.ascii_uppercase + string.digits,
+    sample_size=1000,
 ):
     """Generates a random sequence of letters and numbers and outputs a pandas
     series  of a given sample size that is is
@@ -116,7 +119,9 @@ def id_generator(
     return ID_list
 
 
-def number_generator(lower_bound=0, upper_bound=1001, mean=1, sd=1, sample_size=1000):
+def number_generator(
+    lower_bound=0, upper_bound=1001, mean=1, sd=1, sample_size=1000
+):
     """Generate a set of random values based on a given mean, standard
     deviation, list size and range from a normal distribution.
     The output is a pandas series of a given sample size.
@@ -183,7 +188,9 @@ def create_df_from_config(
             values = random.choices(levels, weights=weights, k=sample_size)
             series = pandas.Series(values, dtype="category")
         elif dist == "uniform":
-            series = stats.uniform.rvs(loc=lower, scale=upper - lower, size=sample_size)
+            series = stats.uniform.rvs(
+                loc=lower, scale=upper - lower, size=sample_size
+            )
         elif dist == "lognormal":
             series = np.random.lognormal(mean, sd, size=sample_size)
         elif dist == "id":
@@ -297,7 +304,9 @@ def createDF(
 
     # Save the file to disk with a default name:
     print(
-        "\n", "Saving the dataframe as a tab separated file: {}".format(outfile), "\n"
+        "\n",
+        "Saving the dataframe as a tab separated file: {}".format(outfile),
+        "\n",
     )
     var_df.to_csv(
         outfile,
@@ -320,12 +329,14 @@ def main():
     """
     version = "0.2.0"
     options = docopt.docopt(__doc__, version=version)
-    welcome_msg = str("\n" + "Welcome to simulate_cont_var.py v{}" + "\n").format(
-        version
-    )
+    welcome_msg = str(
+        "\n" + "Welcome to simulate_cont_var.py v{}" + "\n"
+    ).format(version)
     print(welcome_msg)
     # print(options)
-    docopt_error_msg = str("\n" + "simulate_cont_var.py exited due to an error." + "\n")
+    docopt_error_msg = str(
+        "\n" + "simulate_cont_var.py exited due to an error." + "\n"
+    )
     docopt_error_msg = str(
         docopt_error_msg
         + "\n"
@@ -341,7 +352,9 @@ def main():
     try:
         if options["--config"]:
             sample_size = (
-                int(options["--sample-size"]) if options["--sample-size"] else 1000
+                int(options["--sample-size"])
+                if options["--sample-size"]
+                else 1000
             )
             outfile = (
                 str(options["-O"]).strip("[]").strip("''") + ".tsv"
@@ -359,7 +372,9 @@ def main():
             #    sample_size = 1000
             #    print(''' Using default values for sample size.''')
             if options["--sample-size"] and len(options["--sample-size"]) > 0:
-                sample_size = str(options["--sample-size"]).strip("[]").strip("''")
+                sample_size = (
+                    str(options["--sample-size"]).strip("[]").strip("''")
+                )
                 sample_size = int(sample_size)
                 print("\n", "Your sample size is: {}".format(sample_size))
 
@@ -392,25 +407,41 @@ def main():
             #    lower_bound = 0.0
             #    print('\n', 'Lower bound of distribution is: {}'.format(lower_bound))
             if options["--lower-bound"]:
-                lower_bound = str(options["--lower-bound"]).strip("[]").strip("''")
+                lower_bound = (
+                    str(options["--lower-bound"]).strip("[]").strip("''")
+                )
                 lower_bound = float(lower_bound)
-                print("\n", "Lower bound of distribution is: {}".format(lower_bound))
+                print(
+                    "\n",
+                    "Lower bound of distribution is: {}".format(lower_bound),
+                )
 
             # if not options['--upper-bound']:
             #    upper_bound = 20.0
             #    print('\n', 'Upper bound of distribution is: {}'.format(upper_bound))
             if options["--upper-bound"]:
-                upper_bound = str(options["--upper-bound"]).strip("[]").strip("''")
+                upper_bound = (
+                    str(options["--upper-bound"]).strip("[]").strip("''")
+                )
                 upper_bound = float(upper_bound)
-                print("\n", "Upper bound of distribution is: {}".format(upper_bound))
+                print(
+                    "\n",
+                    "Upper bound of distribution is: {}".format(upper_bound),
+                )
 
             if not options["-O"]:
                 outfile = "continuous_var_simulation.tsv"
-                print("\n", "Saving your dataframe with the name: {}".format(outfile))
+                print(
+                    "\n",
+                    "Saving your dataframe with the name: {}".format(outfile),
+                )
             elif options["-O"] and len(options["-O"]) > 0:
                 outfile = str(options["-O"]).strip("[]").strip("''")
                 outfile = str(outfile + ".tsv")
-                print("\n", "Saving your dataframe with the name: {}".format(outfile))
+                print(
+                    "\n",
+                    "Saving your dataframe with the name: {}".format(outfile),
+                )
 
             createDF(
                 sample_size=sample_size,
