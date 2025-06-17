@@ -1,0 +1,4 @@
+col_name,type,dist,mean,sd,lower,upper,levels,probabilities,missing_rate
+id,string,id,,,,,,,
+age,int,truncnorm,40,10,18,65,, ,0
+sex,category,categorical,,,,,M|F,0.5|0.5,0
