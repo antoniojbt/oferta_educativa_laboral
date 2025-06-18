@@ -77,14 +77,14 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install pytest pytest-cov
-
+          
       - name: Run Python tests and coverage
         run: |
-          pytest --cov=your_python_package --cov-report=xml --cov-report=term
+          pytest --cov --cov-branch --cov-report=xml
 
       # --- Upload coverage to Codecov ---
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: coverage.xml
-          flags: python, r
+      - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+          slug: antoniojbt/oferta_educativa_laboral
