@@ -87,4 +87,4 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-          slug: antoniojbt/oferta_educativa_laboral
+          slug: ${{ github.repository }} #antoniojbt/oferta_educativa_laboral
