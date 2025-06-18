@@ -29,9 +29,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-r-
 
-      - name: Install R packages
+      - name: Install R packages from file # otherwise: Rscript -e "install.packages(c('testthat'), repos='https://cloud.r-project.org')"
         run: |
-          Rscript -e "install.packages(c('testthat'), repos='https://cloud.r-project.org')"
+          Rscript -e "pkgs <- scan('r-requirements.txt', what=character()); install.packages(pkgs, repos='https://cloud.r-project.org')"
 
       - name: Cache pip
         uses: actions/cache@v3
@@ -46,11 +46,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install shellcheck
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
-
-      - name: Run shellcheck
-        run: shellcheck oferta_educativa_laboral/pipeline/scripts/*.sh
+      - uses: ludeeus/action-shellcheck@v2
+        with:
+          scandir: oferta_educativa_laboral/pipeline/scripts
 
       - name: Run flake8
         run: flake8 .
@@ -63,4 +61,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: antoniojbt/oferta_educativa_laboral
+        continue-on-error: true
             
