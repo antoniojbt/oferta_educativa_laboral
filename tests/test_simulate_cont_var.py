@@ -49,3 +49,4 @@ def test_id_generator_length():
     simulate_cont_var = _load_module()
     ids = simulate_cont_var.id_generator(sample_size=3)
     assert len(ids) == 3
+

@@ -136,6 +136,9 @@ def number_generator(
     returned sample respects the requested range.
     """
 
+    if float(lower_bound) >= float(upper_bound):
+        raise ValueError("lower_bound must be less than upper_bound.")
+
     if float(sd) <= 0:
         raise ValueError("Standard deviation (sd) must be positive and non-zero.")
     # Convert raw bounds into standard deviation units for truncnorm

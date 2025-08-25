@@ -1,32 +1,32 @@
 name: Python and R CI with Coverage
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [main, master]
+  push:
     branches: [main]
 
 jobs:
-  test:
-    name: ${{ matrix.language }} tests (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+  # Linux tests run on every PR and on pushes to main/master
+  test-linux:
+    name: ${{ matrix.language }} tests (ubuntu-latest)
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
         language: [python, r]
 
     steps:
       - uses: actions/checkout@v4
 
-      # Set up Python:
+      # Set up Python
       - name: Set up Python
         if: matrix.language == 'python'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # Set up R:
+      # Set up R
       - name: Set up R
         if: matrix.language == 'r'
         uses: r-lib/actions/setup-r@v2
@@ -35,8 +35,8 @@ jobs:
 
       - name: List test files
         run: ls -lhR tests/testthat
-  
-      # Install R dependencies (from r-requirements.txt):
+
+      # Install R dependencies (from r-requirements.txt)
       - name: Parse R requirements
         if: matrix.language == 'r'
         run: |
@@ -48,11 +48,6 @@ jobs:
           echo "GITHUB_PKGS<<EOF" >> $GITHUB_ENV
           echo "$GITHUB_PKGS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-        #run: |          	
-          #if [ -f r-requirements.txt ]; then	
-          #  pkgs=$(grep -v '^#' r-requirements.txt | grep -v '^$' | tr '\n' ' ')	
-          #  PKGS="$pkgs" Rscript -e "install.packages(strsplit(Sys.getenv('PKGS'), ' ')[[1]], repos='https://cloud.r-project.org', dependencies=TRUE)"	
-          #fi	
 
       - name: Install R dependencies
         if: matrix.language == 'r'
@@ -61,7 +56,7 @@ jobs:
           packages: ${{ env.CRAN_PKGS }}
           extra-packages: ${{ env.GITHUB_PKGS }}
 
-      # Install Python dependencies:
+      # Install Python dependencies
       - name: Install Python dependencies
         if: matrix.language == 'python'
         run: |
@@ -69,19 +64,19 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pytest pytest-cov
 
-      # Run R tests and measure coverage (data science project, not a package):
+      # Run R tests and measure coverage (data science project, not a package)
       - name: Run R tests with coverage
         if: matrix.language == 'r'
         run: |
           Rscript scripts/run_coverage.R
 
-      # Run Python tests and measure coverage:
+      # Run Python tests and measure coverage
       - name: Run Python tests with coverage
         if: matrix.language == 'python'
         run: |
           pytest --cov=. --cov-report=xml
 
-      # Upload R coverage to Codecov:
+      # Upload R coverage to Codecov
       - name: Upload R coverage to Codecov
         if: matrix.language == 'r' && hashFiles('cobertura.xml') != ''
         uses: codecov/codecov-action@v5
@@ -90,7 +85,7 @@ jobs:
           file: cobertura.xml
           flags: r
 
-      # Upload Python coverage to Codecov:
+      # Upload Python coverage to Codecov
       - name: Upload Python coverage to Codecov
         if: matrix.language == 'python' && hashFiles('coverage.xml') != ''
         uses: codecov/codecov-action@v5
@@ -98,3 +93,93 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage.xml
           flags: python
+
+  # macOS tests only run on merges/pushes to main/master
+  test-macos:
+    if: github.event_name == 'push' && contains(fromJSON('["main", "master"]'), github.ref_name)
+    needs: test-linux
+    name: ${{ matrix.language }} tests (macos-latest)
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, r]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Set up Python
+      - name: Set up Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Set up R
+      - name: Set up R
+        if: matrix.language == 'r'
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: List test files
+        run: ls -lhR tests/testthat
+
+      # Install R dependencies (from r-requirements.txt)
+      - name: Parse R requirements
+        if: matrix.language == 'r'
+        run: |
+          CRAN_PKGS=$(grep -v '^#' r-requirements.txt | grep -v '^$' | grep -v '^github::')
+          GITHUB_PKGS=$(grep '^github::' r-requirements.txt | sed 's/^github:://')
+          echo "CRAN_PKGS<<EOF" >> $GITHUB_ENV
+          echo "$CRAN_PKGS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "GITHUB_PKGS<<EOF" >> $GITHUB_ENV
+          echo "$GITHUB_PKGS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Install R dependencies
+        if: matrix.language == 'r'
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: ${{ env.CRAN_PKGS }}
+          extra-packages: ${{ env.GITHUB_PKGS }}
+
+      # Install Python dependencies
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest pytest-cov
+
+      # Run R tests and measure coverage (data science project, not a package)
+      - name: Run R tests with coverage
+        if: matrix.language == 'r'
+        run: |
+          Rscript scripts/run_coverage.R
+
+      # Run Python tests and measure coverage
+      - name: Run Python tests with coverage
+        if: matrix.language == 'python'
+        run: |
+          pytest --cov=. --cov-report=xml
+
+      # Upload R coverage to Codecov
+      - name: Upload R coverage to Codecov
+        if: matrix.language == 'r' && hashFiles('cobertura.xml') != ''
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: cobertura.xml
+          flags: r
+
+      # Upload Python coverage to Codecov
+      - name: Upload Python coverage to Codecov
+        if: matrix.language == 'python' && hashFiles('coverage.xml') != ''
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.xml
+          flags: python
+

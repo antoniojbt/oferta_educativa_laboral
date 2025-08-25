@@ -9,6 +9,7 @@ From: mambaorg/micromamba:1.5
     export MAMBA_ENV_NAME=oferta_educativa_laboral
     micromamba env create -f /tmp/environment.yml -n $MAMBA_ENV_NAME
     echo 'eval "$(micromamba shell hook -s bash)" && micromamba activate $MAMBA_ENV_NAME' > /etc/profile.d/conda_env.sh
+    micromamba clean --all --yes || true
 
 %environment
     export MAMBA_ENV_NAME=oferta_educativa_laboral

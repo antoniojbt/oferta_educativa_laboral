@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      APPTAINER_REGISTRY: ${{ secrets.APPTAINER_REGISTRY }}
     steps:
       - uses: actions/checkout@v4
       - name: Build Apptainer image
@@ -30,7 +32,6 @@ jobs:
       - name: Push to Apptainer registry
         if: env.APPTAINER_REGISTRY != ''
         env:
-          APPTAINER_REGISTRY: ${{ secrets.APPTAINER_REGISTRY }}
           APPTAINER_USERNAME: ${{ secrets.APPTAINER_USERNAME }}
           APPTAINER_PASSWORD: ${{ secrets.APPTAINER_PASSWORD }}
         run: |

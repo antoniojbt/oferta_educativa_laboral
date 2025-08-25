@@ -372,19 +372,15 @@ def make_report():
         and os.path.isdir(report_dir)
         and os.listdir(report_dir)
     ):
-        sys.exit(
-            """ {} exists, not overwriting.
-                       Delete the folder and re-run make_report
-                 """.format(
+        raise RuntimeError(
+            """{} exists, not overwriting. Delete the folder and re-run make_report""".format(
                 report_dir
             )
         )
 
     else:
-        sys.exit(
-            """ The directory "pipeline_report" does not exist.
-                     Are the paths correct?
-                 """.format(
+        raise RuntimeError(
+            """The directory "pipeline_report" does not exist. Are the paths correct? {}""".format(
                 report_path
             )
         )

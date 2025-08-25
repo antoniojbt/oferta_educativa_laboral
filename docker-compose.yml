@@ -1,8 +1,12 @@
 version: "3.8"
 services:
   oel:
-    # To build the 'oel' image locally, run: docker build -t oel . (assuming Dockerfile is in the project root)
-    image: oel
+    # Before running `docker compose up`, either load the prebuilt tarball:
+    #   docker load < oferta-laboral.tar.gz
+    # or build the image locally:
+    #   docker compose build oel
+    image: oferta-laboral:latest
+    build: .
     command: bash
     volumes:
       - ./data:/data
