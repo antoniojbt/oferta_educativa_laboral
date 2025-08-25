@@ -23,7 +23,10 @@ class _DummyP:
     def run(self, statement: str) -> None:  # noqa: D401
         pass
 
-    def load(self, infile: str, outfile: str, options: str) -> None:  # noqa: D401
+    def run(self, statement: str) -> None:
+        pass
+
+    def load(self, infile: str, outfile: str, options: str) -> None:
         Path(outfile).touch()
 
 
