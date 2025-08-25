@@ -29,6 +29,7 @@ import os
 import re
 import subprocess
 import pprint
+from typing import List
 
 # Pipeline:
 from ruffus import (
@@ -72,7 +73,7 @@ import cgatcore.experiment as E
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
-def getDir(path=_ROOT):
+def get_dir(path: str = _ROOT) -> str:
     """Get the absolute path to where this function resides. Useful for
     determining the user's path to a package. If a sub-directory is given it
     will be added to the path returned. Use '..' to go up directory levels."""
@@ -93,21 +94,20 @@ ini_paths = [
 ]
 
 
-def getParamsFiles(paths=ini_paths):
+def get_params_files(paths: List[str] = ini_paths) -> List[str]:
     """
     Search for python ini files in given paths, append files with full
-    paths for P.getParameters() to read.
-    Current paths given are:
-    where this code is executing, one up, current directory
+    paths for :func:`P.get_parameters` to read. The current default paths are
+    where this code is executing, one directory up, and the current directory.
     """
-    p_params_files = []
-    for path in ini_paths:
+    params_files: List[str] = []
+    for path in paths:
         for f in os.listdir(os.path.abspath(path)):
             ini_file = re.search(r"pipelin(.*).yml", f)
             if ini_file:
                 ini_file = os.path.join(os.path.abspath(path), ini_file.group())
-                p_params_files.append(ini_file)
-    return p_params_files
+                params_files.append(ini_file)
+    return params_files
 
 
 P.get_parameters(
@@ -137,37 +137,31 @@ def get_py_exec():
     which needs pythonw for matplotlib for instance.
     """
 
+    py_exec = "python"
     try:
-        if str("python") in PARAMS["general"]["py_exec"]:
-            py_exec = "{}".format(PARAMS["general"]["py_exec"])
-    except NameError:
-        E.warn(
-            """
-               You need to specify the python executable, just "python" or
-               "pythonw" is needed in pipeline.yml.
-               """
-        )
-    # else:
-    #    test_cmd = subprocess.check_output(['which', 'pythonw'])
-    #    sys_return = re.search(r'(.*)pythonw', str(test_cmd))
-    #    if sys_return:
-    #        py_exec = 'pythonw'
-    #    else:
-    #        py_exec = 'python'
+        config_exec = PARAMS["general"]["py_exec"]
+    except KeyError as exc:
+        raise KeyError(
+            "Missing 'py_exec' setting under 'general' in pipeline configuration"
+        ) from exc
+    if not config_exec:
+        raise ValueError("Configuration 'general.py_exec' must not be empty")
+    if "python" in str(config_exec):
+        py_exec = str(config_exec)
     return py_exec
 
 
 # get_py_exec()
 
 
-def getINIpaths():
+def get_ini_path() -> str:
     """
     Get the path to scripts for this project, e.g.
     project_xxxx/code/project_xxxx/:
     e.g. my_cmd = "%(scripts_dir)s/bam2bam.py" % P.Parameters.get_params()
     """
     # Check getParams as was updated to get_params but
-    # PARAMS = P.Parameters.get_parameters(getParamsFiles())
+    # PARAMS = P.Parameters.get_parameters(get_params_files())
     # is what seems to work
     try:
         project_scripts_dir = "{}/".format(PARAMS["general"]["project_scripts_dir"])

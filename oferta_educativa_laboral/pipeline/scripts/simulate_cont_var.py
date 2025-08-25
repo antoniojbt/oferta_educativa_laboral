@@ -1,4 +1,4 @@
-##!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 simulate_cont_var.py
 ======================
@@ -90,33 +90,29 @@ import random
 
 
 def id_generator(
-    text="ID_",
-    size=6,
-    chars=string.ascii_uppercase + string.digits,
-    sample_size=1000,
-):
-    """Generates a random sequence of letters and numbers and outputs a pandas
-    series  of a given sample size that is is
+    text: str = "ID_",
+    size: int = 6,
+    chars: str = string.ascii_uppercase + string.digits,
+    sample_size: int = 1000,
+) -> pandas.Series:
+    """Generate a Series of random alphanumeric identifiers.
+
+    Each identifier consists of ``text`` followed by ``size`` random characters
+    drawn from ``chars``. The returned :class:`pandas.Series` contains
+    ``sample_size`` such identifiers.
+
+    Returns
+    -------
+    pandas.Series
+        Series of generated identifiers.
     """
 
-    # Modified from:
-    # https://stackoverflow.com/questions/2257441/random-string-generation-with-upper-case-letters-and-digits-in-python?rq=1
+    id_list = []
+    for _ in range(sample_size):
+        rand = "".join(random.choice(chars) for _ in range(size))
+        id_list.append(f"{text}{rand}")
 
-    ID_list = []
-    sample_size = sample_size + 1  # Python index is 0-based, stop number is
-    # excluded
-    for i in range(1, sample_size):
-        i = "".join(random.choice(chars) for i in range(size))
-        i = str(text + i)
-        ID_list.append(i)
-
-    ID_list = pandas.Series(ID_list)
-    # print(ID_list.head(),
-    #      ID_list.tail(),
-    #      ID_list.describe(),
-    #      )
-
-    return ID_list
+    return pandas.Series(id_list)
 
 
 def number_generator(
