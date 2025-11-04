@@ -1,10 +1,13 @@
 name: oferta_educativa_laboral
 channels:
   - conda-forge
+  - bioconda
   - defaults
 dependencies:
   - python=3.11
   - pip
+  - ruffus
+  - cgatcore
   # Modified to version 4.3 instead of 4.2
   - r-base=4.3
   - r-data.table
@@ -53,8 +56,6 @@ dependencies:
   - r-plotly
   - r-networkd3
   - pip:
-    - ruffus
-    - cgatcore
     - coverage
     - numpy
     - pandas
