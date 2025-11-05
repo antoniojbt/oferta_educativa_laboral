@@ -110,7 +110,7 @@ def test_csv_to_test_db_handles_na_values(tmp_path):
 
 def test_infer_sql_type():
     """Test the SQL type inference function."""
-    from csv_to_test_db import infer_sql_type
+    from csv_db_utils import infer_sql_type
 
     # Test integer
     assert infer_sql_type("123") == "INTEGER"
@@ -129,7 +129,7 @@ def test_infer_sql_type():
 
 def test_get_column_types(tmp_path):
     """Test column type inference from CSV."""
-    from csv_to_test_db import get_column_types
+    from csv_db_utils import get_column_types
 
     # Create CSV with mixed types
     csv_file = tmp_path / "mixed_types.csv"
