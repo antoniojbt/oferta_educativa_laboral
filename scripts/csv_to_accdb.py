@@ -87,8 +87,10 @@ def create_accdb(csv_files, output_accdb):
         print(f"Creating Access database: {output_accdb}")
 
         # For Access, we need to create the database file first
-        # This is done by opening a connection in a special way
-        pyodbc.connect(conn_str, autocommit=True)
+        # This is done by opening a connection with autocommit
+        with pyodbc.connect(conn_str, autocommit=True):
+            # Database is created when connection is opened
+            pass
 
         # Now connect normally to add tables
         conn = pyodbc.connect(conn_str)
