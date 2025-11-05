@@ -2,6 +2,15 @@
 # Simulacion de datos SIAP para unit tests
 # Summary stats plus df_col manual QNA 07 2025
 
+# Inputs:
+# sum_chars.txt
+# sum_dates.txt
+# sum_factors.txt
+# sum_stats.txt
+# df_col_types2_utf8.csv
+
+# ouputs sim df as csv or parquet
+
 # Notas:
 # Recrear el tipo de cada columna, la proporción de valores faltantes y la distribución marginal aproximada a partir de resúmenes generados de datos reales (sum_chars, sum_stats, etc.)
 # Para columnas numéricas: normal truncada en [min,max] salvo que los cuartiles muestren un pico fuerte en 0; en ese caso usar normal/log-normal con inflación de ceros.
@@ -21,8 +30,7 @@
 # si se requiere estructura de dependencia, añadir una cópula gaussiana sobre las mismas marginales. Requiere una matriz de correlación.
 
 # TO DO:
-# Line by line documentation
-# upload to gihub, tell lars
+# Line by line docs
 
 # ---- Libraries ----
 library(readr)
@@ -34,7 +42,7 @@ library(stringi)
 library(lubridate)
 
 # --- params ----
-N_OUT <- 5000 # desired rows
+N_OUT <- 5000 # n samples
 # SEED <- 20251105L # reproducibility
 SEED <- 39453475L # reproducibility
 subdir <- "25_04_2025_Qna_07_Plantilla_2025_meds_report_freeze"
@@ -58,13 +66,13 @@ parse_top_counts <- function(x) {
   if (is.null(x) || is.na(x) || !nzchar(x)) {
     return(tibble(level = character(), n = integer()))
   }
-  # tolerate em dashes or weird placeholders
+  # tolerate em dashes or other non-std placeholders
   if (grepl("^\\s*(-+|—+)\\s*$", x)) {
     return(tibble(level = character(), n = integer()))
   }
   toks <- strsplit(x, ",\\s*")[[1]]
   m1 <- stringr::str_match(toks, "^(.*)\\s*\\((\\d+)\\)\\s*$")
-  # keep only rows that matched
+  # keep only rows that match:
   ok <- which(!is.na(m1[, 2]) & !is.na(m1[, 3]))
   if (!length(ok)) {
     return(tibble(level = character(), n = integer()))
@@ -90,7 +98,7 @@ make_factor_sampler <- function(
   tc <- parse_top_counts(top_counts_row)
 
   if (nrow(tc) == 0) {
-    # no info → synthetic balanced levels
+    # no info: synthetic balanced levels
     k <- max(
       3,
       fallback_levels,
@@ -101,7 +109,7 @@ make_factor_sampler <- function(
     return(function(n) sample(lvls, n, TRUE, p))
   }
 
-  # ---- build base levels + probabilities ----
+  # ---- base levels + probabilities ----
   lv <- tc$level
   cnt <- tc$n
   cnt[!is.finite(cnt) | is.na(cnt) | cnt < 0] <- 0
@@ -120,7 +128,7 @@ make_factor_sampler <- function(
     p <- c(p, rep(p_Otro / tail_k, tail_k))
   }
 
-  p <- normalize_probs(p) # final guard
+  p <- normalize_probs(p) # guard / check
   function(n) sample(lv, n, TRUE, p)
 }
 
@@ -133,7 +141,9 @@ r_zero_infl <- function(n, p0, rpos) {
   out
 }
 
-# ---- numeric sampler from summary row ----
+# ---- numeric sampler ----
+
+# all samplers mimic summary stats from inputs
 make_numeric_sampler <- function(row) {
   minv <- as.numeric(row$min)
   maxv <- as.numeric(row$max)
@@ -148,7 +158,7 @@ make_numeric_sampler <- function(row) {
   if (isTRUE(spike_zero)) {
     # Heuristic: zero inflation if central mass is at 0
     p0 <- 0.75
-    # positive tail: log-normal-ish from mean/sd magnitude if possible, fallback to normal
+    # positive tail: log-normal from mean/sd magnitude if possible, else normal
     mu <- log(abs(meanv) + 1)
     s <- log((sdv + 1) / 2 + 1)
     function(n) {
@@ -274,13 +284,13 @@ gen_MATRICULA <- function(n) {
 }
 
 # ---- read summaries ----
-na_tbl <- read_tsv_loose(PATHS$na_perc) # columns: name, na_perc
+na_tbl <- read_tsv_loose(PATHS$na_perc) # columns: needs 'var' col, input manually
 char_tbl <- read_tsv_loose(PATHS$sum_chars) # CURP/RFC/NSS/MATRICULA lengths
 date_tbl <- read_tsv_loose(PATHS$sum_dates)
 fact_tbl <- read_tsv_loose(PATHS$sum_facts)
 num_tbl <- read_tsv_loose(PATHS$sum_nums)
 
-# optional column types (if provided)
+# optional column types
 col_types <- tryCatch(
   readr::read_csv(PATHS$col_types, show_col_types = FALSE),
   error = \(e) NULL
@@ -301,7 +311,7 @@ if (nrow(num_tbl)) {
 
 ## Dates
 if (nrow(date_tbl)) {
-  # normalize headers (as readr might coerce)
+  # normalise headers (as readr might coerce)
   names(date_tbl) <- c(
     "Column",
     "N",
@@ -347,7 +357,7 @@ for (nm in intersect(id_names, char_tbl$Variable)) {
   )
 }
 
-# any columns not covered yet but present in NA table -> simple placeholders
+# any columns not covered but present in NA table -> simple placeholders
 for (nm in setdiff(na_tbl$var, names(gens))) {
   gens[[nm]] <- function(n) rep(NA_character_, n)
 }
@@ -383,7 +393,7 @@ simulate_dataset <- function(n = N_OUT) {
     }
   }
 
-  # Minimal cross-field constraints (customize)
+  # Minimal cross-field constraints (end dates after ini dates)
   date_cols <- intersect(
     c("FECHAINI", "FECHAOCUP", "FECHAMOV", "FECHAFIN"),
     names(df)
