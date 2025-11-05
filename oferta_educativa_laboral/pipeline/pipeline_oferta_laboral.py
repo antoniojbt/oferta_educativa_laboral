@@ -459,7 +459,8 @@ def conda_info(outfile):
                    conda list --show-channel-urls > %(channels)s ;
                    conda env export > %(environment)s
                 """
-    P.run(statement)
+# TODO: remove comment to run statement after updating to micromamba commands
+#    P.run(statement)
 
 
 # Create the "full" pipeline target to run all functions specified

@@ -7,7 +7,6 @@ services:
     #   docker compose build oel
     image: oferta-laboral:latest
     build: .
-    command: bash
     volumes:
-      - ./data:/data
-      - ./results:/results
+      - ./data:/workspace/oferta_educativa_laboral/data
+      - ./results:/workspace/oferta_educativa_laboral/results        
