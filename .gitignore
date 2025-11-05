@@ -112,3 +112,7 @@ oferta_educativa_laboral/pipeline/pipeline.Rproj
 # Pipeline log
 oferta_educativa_laboral/pipeline/pipeline.log
 .coverage
+
+# Test database files
+*.db
+*.accdb

@@ -120,6 +120,30 @@ project_root/data/data_UP/raw/
 Ejemplos de archivos esperados en los scripts:  
 `Qna_17_Plantilla_2024.csv`, `Qna_17_Bienestar_2024.csv`
 
+### Datos sintéticos para pruebas
+
+El repositorio incluye datos sintéticos en formato CSV para probar el pipeline:
+- `data/synthetic_dataset.csv`
+- `data/synthetic_dataset2.csv`
+
+Estos archivos fueron generados para replicar las distribuciones estadísticas de los datos reales sin contener información sensible.
+
+#### Conversión de CSV a Access Database
+
+Para usar los datos sintéticos con el pipeline, deben convertirse a formato `.accdb`:
+
+**En Windows:**
+```bash
+python scripts/csv_to_accdb.py data/synthetic_dataset.csv data/synthetic_dataset2.csv -o data/synthetic_test_data.accdb
+```
+
+**En Linux/Mac (para pruebas):**
+```bash
+python scripts/csv_to_test_db.py data/synthetic_dataset.csv data/synthetic_dataset2.csv -o data/synthetic_test_data.db
+```
+
+Para más información sobre la conversión, consulta `data/CONVERSION_README.md`.
+
 ### Estructura esperada del proyecto con datos originales:
 
 ```
