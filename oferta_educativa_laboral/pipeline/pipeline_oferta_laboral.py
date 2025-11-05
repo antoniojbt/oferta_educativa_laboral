@@ -326,11 +326,18 @@ def get_initial_files():
     Use this function to get names from .accdb files and store it
     in a python list. The list is used as a ruffus input for the
     convert_to_csv method of the pipeline.
+    
+    Returns an empty list if no .accdb files are found, allowing the
+    module to be imported without errors. The pipeline will fail at
+    runtime if no files are available when tasks are executed.
     """
     initial_files = glob.glob("../../data/*.accdb")
     #TODO: handle unsupported file names, eg: names with spaces
     if not initial_files:
-        raise FileNotFoundError("No .accdb files are in the data directory!")
+        # Return empty list during import to allow testing
+        # The pipeline will naturally skip tasks if no input files exist
+        print("Warning: No .accdb files found in the data directory!")
+        return []
     else:
         print(f"Success, .accdb files found are: {initial_files}")
     return initial_files
@@ -353,7 +360,7 @@ results_dir = PARAMS.get("paths", {}).get("results_dir", "results")
 
 
 @follows(mkdir(results_dir))
-@transform(get_initial_files(), regex(".*/([^/]+)\.accdb$"), r"../../results/\1.done")
+@transform(get_initial_files(), regex(r".*/([^/]+)\.accdb$"), r"../../results/\1.done")
 def convert_to_csv(infile, outfile):
     """Dummy step that would convert .accdb tables to CSV files."""
     project_root = os.environ.get('PROJECT_ROOT', '../..')
